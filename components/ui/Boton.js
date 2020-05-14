@@ -4,6 +4,7 @@ const Boton = styled.a`
     font-weight: 700;
     text-transform: uppercase;
     border: 1px solid #d1d1d1;
+    border-radius: 50px;
     padding: .8rem 2rem;
     margin-right: 1rem;
     background-color: ${props => props.bgColor ? '#DA552F' : 'white'};
