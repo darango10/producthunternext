@@ -3,14 +3,13 @@ import Layout from "../components/layout/Layout";
 import {Formulario, Campo, InputSubmit, Error} from '../components/ui/Formulario'
 import {css} from '@emotion/core'
 import useValidacion from "../hooks/useValidacion";
-import validarCrearCuenta from "../validacion/validarCrearCuenta";
 import firebase from "../firebase";
 import Router from "next/router";
 import Swal from "sweetalert2";
+import validarIniciarSesion from "../validacion/validarIniciarSesion";
 
 //StateIncial
 const STATE_INICIAL = {
-    nombre: '',
     email: '',
     password: ''
 }
@@ -18,23 +17,23 @@ const STATE_INICIAL = {
 const Login = () => {
 
     const {valores, errores, handleSubmit, handleChange, handleBlur} = useValidacion
-    (STATE_INICIAL, validarCrearCuenta, crearCuenta)
+    (STATE_INICIAL, validarIniciarSesion, iniciarSesion)
 
     //Funcion para crear la cuenta
-    async function crearCuenta() {
+    async function iniciarSesion() {
         try {
-            await firebase.registrar(nombre, email, password);
+            await firebase.login(email, password);
             await Router.push('/');
-            await Swal.fire('Usuario Creado', 'El usuario ha sido creado con exito', 'success')
+            await Swal.fire('Inicio de Sesion', 'Inicio de Sesion exitoso', 'success')
         } catch (e) {
             console.log(e.message)
-            await Swal.fire('Usuario Creado', `${e.message}`, 'error')
+            await Swal.fire('Inicio de Sesion', `${e.message}`, 'error')
         }
     }
 
 
     //Extraer valores
-    const {nombre, email, password} = valores;
+    const {email, password} = valores;
 
 
     return (
