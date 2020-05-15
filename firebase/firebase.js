@@ -1,6 +1,10 @@
 import app from 'firebase/app'
 import firebaseConfig from "./config";
 import 'firebase/auth'
+import 'firebase/firestore'
+import "firebase/storage";
+
+
 
 class Firebase {
     constructor() {
@@ -10,6 +14,8 @@ class Firebase {
         }
 
         this.auth = app.auth();
+        this.db = app.firestore();
+        this.storage = app.storage();
     }
 
     //Registrar Usuario
@@ -22,12 +28,12 @@ class Firebase {
 
     //Autenticar Usuario
     async login(email, password) {
-        return this.auth.signInWithEmailAndPassword(email,password);
+        return this.auth.signInWithEmailAndPassword(email, password);
     }
 
     //Cierra Sesion
-    async logout(){
-        return  this.auth.signOut();
+    async logout() {
+        return this.auth.signOut();
     }
 
 }
