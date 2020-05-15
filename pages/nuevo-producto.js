@@ -33,7 +33,7 @@ const NuevoProducto = () => {
     };
 
     const handleProgress = progreso => {
-        Swal.fire('Subiendo Imagen', `${progreso}`, 'warning')
+        Swal.fire('Subiendo Imagen', `${progreso}%`, 'warning')
         guardarProgreso(progreso)
     };
 
