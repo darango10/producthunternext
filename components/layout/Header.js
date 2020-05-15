@@ -1,10 +1,13 @@
-import React, {Fragment} from 'react';
+import React, {Fragment, useContext} from 'react';
 import Buscar from "../ui/Buscar";
 import Navegacion from "./Navegacion";
 import Link from "next/link";
 import {css} from '@emotion/core'
 import styled from "@emotion/styled";
 import Boton from "../ui/Boton";
+import {FirebaseContext} from '../../firebase'
+import Router from "next/router";
+import Swal from "sweetalert2";
 
 const ContenedorHeader = styled.div`
    max-width: 1200px;
@@ -28,7 +31,20 @@ const Logo = styled.p`
 
 const Header = () => {
 
-    const usuario = false;
+    const {usuario, firebase} = useContext(FirebaseContext);
+
+    //Cuando el usuario da click en cerrar sesion
+    const cerrarCesion = async () => {
+        try {
+            await firebase.logout();
+            await Router.push('/login');
+            await Swal.fire('Cerra Sesión', 'Sesión cerrada con éxito', 'success')
+
+        }catch (e) {
+            console.log(e)
+        }
+
+    }
 
 
     return (
@@ -65,8 +81,11 @@ const Header = () => {
                                 css={css`
                           margin-right: 2rem;
                         `}
-                            >Hola: Juan</p>
-                            <Boton bgColor={true}>Cerrar Sesion</Boton>
+                            >{usuario.displayName}</p>
+                            <Boton
+                                bgColor={true}
+                                onClick={cerrarCesion}
+                            >Cerrar Sesion</Boton>
                         </Fragment>
                         :
                         <Fragment>
