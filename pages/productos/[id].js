@@ -81,7 +81,7 @@ const Producto = () => {
 
         }
 
-    }, [id])
+    }, [id,producto.votos])
 
     if (Object.keys(producto).length === 0 && !error) {
         return (
@@ -94,7 +94,6 @@ const Producto = () => {
 
 
     const {comentarios, creado, descripcion, creador, nombre, url, urlImagen, votos, empresa, haVotado} = producto
-
 
     //Cuando el usuario vota
     const votarProducto = () => {
@@ -179,95 +178,127 @@ const Producto = () => {
 
     }
 
+    //Funcion que revisa que el creador del producto sea el mismo que esta autenticado
+    const puedeBorrar = () => {
+        if (!usuario) return false
+
+        if (creador.id === usuario.uid) {
+            return true
+        }
+    }
+
+    //Elimina producto de la base de datos
+    const eliminarProducto=async ()=>{
+        if (!usuario){
+            return router.push('/login')
+        }
+
+        if (creador.id !== usuario.uid){
+            return router.push('/')
+        }
+        try{
+            await firebase.db.collection('productos').doc(id).delete();
+            router.push('/')
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
     return (
 
         <Layout>
-            <Fragment>
-                {error ? <Error404/> :
-                    <div className="contenedor">
-                        <h1 css={css`
+
+            {error ? <Error404/> :
+                <div className="contenedor">
+                    <h1 css={css`
                               text-align: center;
                               margin-top: 5rem;
                             `}
 
-                        >{nombre}</h1>
-                        <ContenedorProducto>
-                            <div>
-                                <p>Publicado hace: {formatDistanceToNow(new Date(creado), {locale: es})}</p>
-                                <p>Por: {creador.nombre} de: {empresa}</p>
-                                <img src={urlImagen} alt=""/>
-                                <p>{descripcion}</p>
-                                {usuario &&
-                                <Fragment>
-                                    <h2>Agrega tu comentario</h2>
-                                    <form onSubmit={agregarComentario}>
-                                        <Campo>
-                                            <input
-                                                type="text"
-                                                required={true}
-                                                name={'mensaje'}
-                                                onChange={comentarioChange}
-                                            />
-                                        </Campo>
-                                        <InputSubmit
-                                            type={'submit'}
-                                            value={'Agregar Comentario'}
+                    >{nombre}</h1>
+                    <ContenedorProducto>
+                        <div>
+                            <p>Publicado hace: {formatDistanceToNow(new Date(creado), {locale: es})}</p>
+                            <p>Por: {creador.nombre} de: {empresa}</p>
+                            <img src={urlImagen} alt=""/>
+                            <p>{descripcion}</p>
+                            {usuario &&
+                            <Fragment>
+                                <h2>Agrega tu comentario</h2>
+                                <form onSubmit={agregarComentario}>
+                                    <Campo>
+                                        <input
+                                            type="text"
+                                            required={true}
+                                            name={'mensaje'}
+                                            onChange={comentarioChange}
                                         />
-                                    </form>
-                                </Fragment>
-                                }
-                                <h2 css={css`
+                                    </Campo>
+                                    <InputSubmit
+                                        type={'submit'}
+                                        value={'Agregar Comentario'}
+                                    />
+                                </form>
+                            </Fragment>
+                            }
+                            <h2 css={css`
                                 margin: 2rem 0;
                                 `}>Comentarios</h2>
-                                {comentarios.length === 0
-                                    ? 'Aún no hay comentarios'
-                                    :
+                            {comentarios.length === 0
+                                ? 'Aún no hay comentarios'
+                                :
 
-                                    <ul>
-                                        {comentarios.map((comentario, i) => (
-                                            <li
-                                                key={`${comentario.usuarioId}-${i}`}
-                                                css={css`
+                                <ul>
+                                    {comentarios.map((comentario, i) => (
+                                        <li
+                                            key={`${comentario.usuarioId}-${i}`}
+                                            css={css`
                                                 border: 1px solid #e1e1e1;
                                                 padding: 2rem;
                                                 `}
-                                            >
-                                                <p>{comentario.mensaje}</p>
-                                                <p>Escrito por:
-                                                    <span
-                                                        css={css`
+                                        >
+                                            <p>{comentario.mensaje}</p>
+                                            <p>Escrito por:
+                                                <span
+                                                    css={css`
                                                 font-weight: bold;
                                                 `}>{comentario.usuarioNombre}</span></p>
-                                                {esCreador(comentario.usuarioId) &&
-                                                <CreadorProducto>Es Creador</CreadorProducto>}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                }
-                            </div>
-                            <aside>
-                                <Boton
-                                    target={'_blank'}
-                                    bgColor={true}
-                                    href={url}
-                                >Visitar URL</Boton>
+                                            {esCreador(comentario.usuarioId) &&
+                                            <CreadorProducto>Es Creador</CreadorProducto>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            }
+                        </div>
+                        <aside>
+                            <Boton
+                                target={'_blank'}
+                                bgColor={true}
+                                href={url}
+                            >Visitar URL</Boton>
 
-                                <div css={css`
+                            <div css={css`
                                    margin-top: 5rem;
                               `}>
-                                    <p css={css`
+                                <p css={css`
                                    text-align: center;
                               `}>{votos} Votos</p>
-                                    {usuario &&
-                                    <Boton
-                                        onClick={votarProducto}
-                                    >Votar</Boton>
-                                    }
-                                </div>
-                            </aside>
-                        </ContenedorProducto>
-                    </div>}
-            </Fragment>
+                                {usuario &&
+                                <Boton
+                                    onClick={votarProducto}
+                                >Votar</Boton>
+                                }
+                            </div>
+                        </aside>
+                    </ContenedorProducto>
+                    {puedeBorrar() &&
+                        <Boton
+                            bgColor={true}
+                            onClick={eliminarProducto}
+                        >Eliminar Producto</Boton>
+                    }
+                </div>}
+
         </Layout>
 
     );
